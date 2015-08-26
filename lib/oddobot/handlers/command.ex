@@ -1,15 +1,12 @@
-defmodule Oddobot.Handlers.Echo do
+defmodule Oddobot.Handlers.Command do
   @moduledoc """
-  A completely useless echo script.
-
-  This script simply echoes the same message back.
+  Basic command parsing
   """
 
   @usage nil
 
   use Hedwig.Handler
   import String
-  require Logger
 
   @cmd_prefix "/oddo"
 
@@ -38,9 +35,26 @@ defmodule Oddobot.Handlers.Echo do
     {:ok, opts}
   end
 
+  def parse_command(cmd) do
+    match_regex = ~r/^(?<command>\S+)\s*(?<args>.*)/
+    %{"command" => command, "args" => args} = Regex.named_captures(match_regex, cmd)
+    {String.downcase(command), args}
+  end
+
   def handle_command(cmd, msg) do
-    Logger.warn fn -> "Recieved command: " <> cmd end
-    reply(msg, cmd)
+    case parse_command(cmd) do
+      {"help", _} -> handle_help(msg)
+      {invalid, _} -> handle_unknown(invalid, msg)
+      ditto -> reply(msg, "Parse error: #{inspect ditto}")
+    end
+  end
+
+  def handle_help(msg) do
+    reply(msg, "Greetings humans, I am Oddobot.")
+  end
+
+  def handle_unknown(command, msg) do
+    reply(msg, "Do not know '#{command}'")
   end
 
 end

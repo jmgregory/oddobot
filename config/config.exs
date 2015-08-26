@@ -47,7 +47,7 @@ config :hedwig,
         "mybotroom@conf.hipchat.com"
       ],
       handlers: [
-        {Handlers.Echo, %{}}
+        {Handlers.Command, %{}}
       ]
     }
   ]
